@@ -1,0 +1,15 @@
+# PyInstaller build artifacts
+build/
+dist/YTDownloader.exe
+dist/Downloads/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Cython generated C source (rebuild from fractal.pyx)
+fractal.c
+
+# Claude session memory
+.claude/
