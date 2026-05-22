@@ -102,6 +102,9 @@ FRAC_CY        =  0.1314023
 FRAC_ZOOM_RATE = 1.035
 FRAC_ZOOM_MAX  = 8e4
 FRAC_PHASE_INC = 0.004
+# Render budget: cap pixel count so the worker stays fast at any window size.
+# PIL upscales the result for display. Raise to trade fps for sharpness.
+FRAC_MAX_PIXELS = 480_000   # ~873×550 at 16:9, scales to any aspect ratio
 
 
 # ── Fractal computation ───────────────────────────────────────────────────────
@@ -237,8 +240,7 @@ class DXDownloader(tk.Tk):
         self._frac_queue   = queue.Queue(maxsize=3)
         self._frac_stop    = threading.Event()   # app-shutdown signal (shared w/ audio)
         self._photo_ref    = None
-        self._frac_rw      = WIN_W
-        self._frac_rh      = WIN_H
+        self._frac_rw, self._frac_rh = self._cap_render(WIN_W, WIN_H)
         self._vx_key       = None        # vortex precompute cache key
 
         # Audio state
@@ -330,10 +332,18 @@ class DXDownloader(tk.Tk):
         )
         self._bg_canvas.bind("<Configure>", self._on_canvas_resize)
 
+    @staticmethod
+    def _cap_render(w, h):
+        """Scale (w, h) down so w*h <= FRAC_MAX_PIXELS, preserving aspect ratio."""
+        w, h = max(64, w), max(64, h)
+        if w * h > FRAC_MAX_PIXELS:
+            s = (FRAC_MAX_PIXELS / (w * h)) ** 0.5
+            w, h = max(64, int(w * s)), max(64, int(h * s))
+        return w, h
+
     def _on_canvas_resize(self, event):
         self._bg_canvas.coords(self._ui_window_id, event.width // 2, event.height // 2)
-        self._frac_rw = max(64, event.width)
-        self._frac_rh = max(64, event.height)
+        self._frac_rw, self._frac_rh = self._cap_render(event.width, event.height)
 
     def _build_ui(self, p):
         P = 14
