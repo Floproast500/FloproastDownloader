@@ -85,4 +85,4 @@ dist/FloproastSetup.exe    — distributable installer
 
 ## SIGNAL ESTABLISHED
 
-Made by floppy, bacon & sushi.
+Made by Floproast
