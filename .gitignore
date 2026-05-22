@@ -1,7 +1,6 @@
 # PyInstaller build artifacts
 build/
-dist/YTDownloader.exe
-dist/Downloads/
+dist/
 
 # Python cache
 __pycache__/
